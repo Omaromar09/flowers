@@ -1,0 +1,106 @@
+#jv-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  overflow: hidden;
+  background: #240913;
+}
+#jv-intro canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+#jv-intro .jv-rays {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 200vmax;
+  height: 200vmax;
+  margin: -100vmax 0 0 -100vmax;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: repeating-conic-gradient(from 0deg, transparent 0 7deg, rgba(255, 196, 160, 0.16) 9deg 10.5deg, transparent 13deg 23deg);
+  -webkit-mask-image: radial-gradient(circle, #000 0, transparent 38%);
+  mask-image: radial-gradient(circle, #000 0, transparent 38%);
+  animation: jvspin 60s linear infinite;
+}
+#jv-intro .jv-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100vmin;
+  height: 100vmin;
+  margin: -50vmin 0 0 -50vmin;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(circle, rgba(255, 170, 140, 0.5) 0, rgba(225, 80, 120, 0.2) 36%, transparent 68%);
+}
+#jv-intro .jv-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  pointer-events: none;
+  padding: 0 6vw;
+  transition: opacity 0.7s ease;
+  filter: drop-shadow(0 0 26px rgba(255, 180, 120, 0.5));
+}
+#jv-intro h1 {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(32px, 9vw, 92px);
+  letter-spacing: 0.22em;
+  padding-left: 0.22em;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+#jv-intro h1 span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.4em) scale(0.9);
+  filter: blur(12px);
+  background: linear-gradient(100deg, #b98748 25%, #fff3d6 48%, #c99a5b 70%) 0 0/260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transition: opacity 1s ease, transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1), filter 1.2s ease;
+}
+#jv-intro.on h1 span {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  animation: jvshine 3.2s ease-in-out 0.6s infinite;
+}
+#jv-intro .jv-tag {
+  margin: 0.9em 0 0;
+  font-style: italic;
+  font-size: clamp(16px, 3.4vw, 26px);
+  letter-spacing: 0.08em;
+  color: #f2cdd4;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 1.3s ease, transform 1.3s ease;
+}
+#jv-intro.tag .jv-tag {
+  opacity: 1;
+  transform: none;
+}
+#jv-intro.out .jv-text {
+  opacity: 0;
+}
+@keyframes jvspin {
+  to { transform: rotate(360deg); }
+}
+@keyframes jvshine {
+  0% { background-position: 100% 0; }
+  60%, 100% { background-position: -60% 0; }
+}

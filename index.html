@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARDIN VIVANT — Haute Botanique & Living Floral Architecture</title>
+  
+  <!-- Google Fonts: Cormorant Garamond, Plus Jakarta Sans, Cairo, Amiri -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js for 3D Interactive Floral Petals -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- Three.js Post-Processing Shaders & Passes for Cinematic Intro -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/MaskPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#121714',
+            alabaster: '#FDFBF7',
+            parchment: '#F7F3EC',
+            stoneBorder: '#E6E0D6',
+            burgundy: '#4F1321',
+            burgundyHover: '#3B0D18',
+            moss: '#1E3329',
+            sageText: '#8A9A86',
+            blushSilk: '#F6E7E4',
+            butterDahlia: '#F6D06E'
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            arabicSans: ['"Cairo"', 'sans-serif'],
+            arabicSerif: ['"Amiri"', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --color-obsidian: #121714;
+      --color-alabaster: #FDFBF7;
+      --color-burgundy: #4F1321;
+    }
+    html {
+      scroll-behavior: smooth;
+      background-color: #FDFBF7;
+      color: #121714;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    /* Arabic typography overrides */
+    html[dir="rtl"] body {
+      font-family: 'Cairo', 'Plus Jakarta Sans', sans-serif;
+      line-height: 1.7;
+    }
+    html[dir="rtl"] .font-serif {
+      font-family: 'Amiri', 'Cormorant Garamond', serif;
+    }
+    html[dir="rtl"] [class*="tracking-"] {
+      letter-spacing: normal !important;
+    }
+
+    /* Tactile subtle grain */
+    .tactile-grain {
+      background-image: radial-gradient(rgba(18, 23, 20, 0.04) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    /* Custom smooth scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FDFBF7;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #E6E0D6;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4F1321;
+    }
+
+    /* ============ JARDIN VIVANT CINEMATIC INTRO ============ */
+    #jv-intro { position: fixed; inset: 0; z-index: 2147483000; overflow: hidden; background: #240913; }
+    #jv-intro canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    #jv-intro .jv-rays {
+      position: absolute; left: 50%; top: 50%; width: 200vmax; height: 200vmax; margin: -100vmax 0 0 -100vmax; opacity: 0; pointer-events: none; mix-blend-mode: screen;
+      background: repeating-conic-gradient(from 0deg, transparent 0 7deg, rgba(255,196,160,.16) 9deg 10.5deg, transparent 13deg 23deg);
+      -webkit-mask-image: radial-gradient(circle, #000 0, transparent 38%); mask-image: radial-gradient(circle, #000 0, transparent 38%); animation: jvspin 60s linear infinite;
+    }
+    #jv-intro .jv-glow {
+      position: absolute; left: 50%; top: 50%; width: 100vmin; height: 100vmin; margin: -50vmin 0 0 -50vmin; border-radius: 50%; opacity: 0; pointer-events: none; mix-blend-mode: screen;
+      background: radial-gradient(circle, rgba(255,170,140,.5) 0, rgba(225,80,120,.2) 36%, transparent 68%);
+    }
+    #jv-intro .jv-text {
+      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+      font-family: 'Cormorant Garamond', Georgia, serif; pointer-events: none; padding: 0 6vw; transition: opacity .7s ease; filter: drop-shadow(0 0 26px rgba(255,180,120,.5));
+    }
+    #jv-intro h1 { margin: 0; font-weight: 500; font-size: clamp(32px, 9vw, 92px); letter-spacing: .22em; padding-left: .22em; line-height: 1.1; white-space: nowrap; }
+    #jv-intro h1 span {
+      display: inline-block; opacity: 0; transform: translateY(.4em) scale(.9); filter: blur(12px);
+      background: linear-gradient(100deg, #b98748 25%, #fff3d6 48%, #c99a5b 70%) 0 0/260% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+      transition: opacity 1s ease, transform 1.2s cubic-bezier(.2,.7,.2,1), filter 1.2s ease;
+    }
+    #jv-intro.on h1 span { opacity: 1; transform: none; filter: none; animation: jvshine 3.2s ease-in-out .6s infinite; }
+    #jv-intro .jv-tag { margin: .9em 0 0; font-style: italic; font-size: clamp(16px, 3.4vw, 26px); letter-spacing: .08em; color: #f2cdd4; opacity: 0; transform: translateY(10px); transition: opacity 1.3s ease, transform 1.3s ease; }
+    #jv-intro.tag .jv-tag { opacity: 1; transform: none; }
+    #jv-intro.out .jv-text { opacity: 0; }
+    @keyframes jvspin { to { transform: rotate(360deg); } }
+    @keyframes jvshine { 0% { background-position: 100% 0; } 60%, 100% { background-position: -60% 0; } }
+  </style>
+</head>
+<body class="bg-alabaster text-obsidian min-h-screen flex flex-col selection:bg-burgundy selection:text-white">
+
+  <!-- =========================================================================
+       01. TOP PROMO BAR & NAVIGATION
+  ========================================================================= -->
+  <div class="bg-obsidian text-[11px] text-alabaster/90 py-2 px-4 text-center tracking-wider font-mono uppercase border-b border-white/10">
+    <span data-i18n="topbar.shipping">Complimentary Chilled White-Glove Courier on Orders Above $200</span>
+    <span class="mx-2 opacity-40">|</span>
+    <span class="text-butterDahlia" data-i18n="topbar.promo">Use code JARDIN10 for 10% privilege</span>
+  </div>
+
+  <header class="sticky top-0 z-40 bg-alabaster/90 backdrop-blur-md border-b border-stoneBorder/80 transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- Left: Navigation Links -->
+      <nav class="hidden md:flex items-center space-x-7 rtl:space-x-reverse text-xs tracking-wider uppercase font-semibold text-obsidian/80">
+        <a href="#spotlight" class="hover:text-burgundy transition-colors" data-i18n="nav.spotlight">Featured Bouquet</a>
+        <a href="#catalog" class="hover:text-burgundy transition-colors" data-i18n="nav.catalog">Catalog</a>
+        <a href="#care" class="hover:text-burgundy transition-colors" data-i18n="nav.care">Care Guide</a>
+        <a href="#atelier" class="hover:text-burgundy transition-colors" data-i18n="nav.atelier">Custom Atelier</a>
+      </nav>
+
+      <!-- Center: Brand Logo -->
+      <div class="text-center">
+        <a href="#" class="font-serif text-2xl sm:text-3xl tracking-widest uppercase font-medium text-obsidian hover:opacity-90 transition-opacity">
+          JARDIN VIVANT
+        </a>
+        <span class="block text-[9px] font-mono tracking-widest text-sageText uppercase mt-0.5" data-i18n="brand.subtitle">
+          Haute Botanique • Paris
+        </span>
+      </div>
+
+      <!-- Right: Search, Language, Cart -->
+      <div class="flex items-center space-x-4 rtl:space-x-reverse">
+        
+        <!-- Search Trigger -->
+        <button onclick="toggleSearchModal(true)" aria-label="Search" class="p-2 text-obsidian hover:text-burgundy transition-colors rounded-full hover:bg-parchment cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </button>
+
+        <!-- Language Switcher -->
+        <button onclick="toggleLanguage()" id="langBtn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-stoneBorder hover:border-burgundy text-xs font-semibold uppercase tracking-wider text-obsidian hover:text-burgundy transition-colors cursor-pointer bg-white shadow-2xs">
+          <span class="w-2 h-2 rounded-full bg-burgundy"></span>
+          <span id="langLabel">العربية</span>
+        </button>
+
+        <!-- Shopping Cart Trigger -->
+        <button onclick="toggleCartDrawer(true)" class="relative p-2.5 bg-obsidian hover:bg-burgundy text-white rounded-full transition-all cursor-pointer shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <span id="cartCountBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-burgundy text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-alabaster">
+            0
+          </span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       02. CINEMATIC 3D HERO SECTION (WITH THREE.JS CANVAS)
+  ========================================================================= -->
+  <section class="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-alabaster via-parchment to-alabaster px-4 sm:px-6 lg:px-8 border-b border-stoneBorder">
+    
+    <!-- 3D Canvas Container -->
+    <div id="three-container" class="absolute inset-0 z-0 pointer-events-auto"></div>
+
+    <!-- Tactile grain -->
+    <div class="absolute inset-0 tactile-grain pointer-events-none z-1"></div>
+
+    <!-- Hero Content -->
+    <div id="heroContent" class="relative z-10 max-w-4xl mx-auto text-center py-20 pointer-events-none transition-all duration-1000 ease-out opacity-0 translate-y-6">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-stoneBorder backdrop-blur-md shadow-xs mb-6 pointer-events-auto">
+        <span class="w-2 h-2 rounded-full bg-burgundy animate-ping"></span>
+        <span class="text-[10px] sm:text-xs font-mono uppercase tracking-widest text-obsidian/80" data-i18n="hero.badge">
+          Dawn Harvest • Living Floral Architecture
+        </span>
+      </div>
+
+      <h1 class="font-serif text-4xl sm:text-6xl md:text-7xl font-normal tracking-tight text-obsidian leading-[1.1]">
+        <span class="block" data-i18n="hero.title1">Where Flowers Speak</span>
+        <span class="block font-serif italic text-burgundy mt-1" data-i18n="hero.title2">A Living Language</span>
+      </h1>
+
+      <p class="mt-6 max-w-2xl mx-auto text-xs sm:text-base text-obsidian/75 leading-relaxed" data-i18n="hero.subtitle">
+        Enter a breathing botanical sanctuary. Handcrafted luxury bouquets, rare garden roses, and living sculptures curated for life's most profound moments.
+      </p>
+
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
+        <a href="#spotlight" class="w-full sm:w-auto py-3.5 px-8 bg-burgundy hover:bg-burgundyHover text-alabaster text-xs tracking-widest uppercase font-semibold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
+          <span data-i18n="hero.cta_spotlight">View Signature Bouquet</span>
+          <span>↓</span>
+        </a>
+        <a href="#atelier" class="w-full sm:w-auto py-3.5 px-8 bg-white/90 hover:bg-white text-obsidian border border-stoneBorder hover:border-obsidian/40 text-xs tracking-widest uppercase font-semibold rounded-full shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+          <span data-i18n="hero.cta_atelier">Custom Atelier</span>
+          <span>✨</span>
+        </a>
+      </div>
+
+      <p class="mt-6 text-[10px] font-mono text-sageText tracking-widest uppercase" data-i18n="hero.hint">
+        • Move your cursor to interact with floating petals •
+      </p>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       03. SPOTLIGHT HERO BOUQUET (EXACT MARSANO DESIGN SPECIFICATION)
+  ========================================================================= -->
+  <section id="spotlight" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <!-- Breadcrumb -->
+    <div class="text-[11px] font-mono uppercase tracking-widest text-sageText mb-6 flex items-center gap-2">
+      <a href="#" class="hover:text-burgundy">Home</a>
+      <span>/</span>
+      <span class="text-obsidian" data-i18n="spotlight.breadcrumb">Bouquet tenderness</span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Big Product Image -->
+      <div class="lg:col-span-7 bg-parchment/60 rounded-3xl p-4 sm:p-6 border border-stoneBorder/80">
+        <div class="aspect-[4/5] sm:aspect-[1/1] w-full rounded-2xl overflow-hidden bg-white shadow-xs relative group">
+          <img id="mainProductImg" src="./public/images/products/flower-peach-macro.jpg" alt="Tenderness Floral Bouquet" class="w-full h-full object-cover rounded-xl transition-transform duration-700 hover:scale-105">
+          <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-xs px-3 py-1 rounded-full border border-stoneBorder text-[10px] font-mono uppercase tracking-widest text-burgundy font-bold">
+            Bestseller
+          </div>
+          <button onclick="toggleWishlist(this)" class="absolute top-4 right-4 p-2.5 rounded-full bg-white/90 backdrop-blur-xs border border-stoneBorder text-obsidian hover:text-burgundy transition-colors shadow-xs cursor-pointer">
+            <svg class="w-4 h-4 heart-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Right: Details, Sizes, Price, Vases, Cart -->
+      <div class="lg:col-span-5 space-y-6">
+        <div>
+          <span class="text-[10px] font-mono tracking-widest uppercase text-sageText">Ranunculus asiaticus × Rosa 'Juliet'</span>
+          <h2 class="font-serif text-3xl sm:text-5xl font-normal tracking-tight text-obsidian uppercase mt-1" data-i18n="spotlight.title">
+            TENDERNESS
+          </h2>
+        </div>
+
+        <!-- Size Pills & Cart CTA Row -->
+        <div class="flex items-center gap-3">
+          <!-- Size Selector Pills -->
+          <div class="inline-flex p-1 rounded-xl bg-white border border-stoneBorder shadow-2xs">
+            <button onclick="selectSpotlightSize('S', 180, this)" class="spotlight-size-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-obsidian text-white cursor-pointer transition-colors">(S)</button>
+            <button onclick="selectSpotlightSize('M', 235, this)" class="spotlight-size-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-obsidian/70 hover:text-obsidian cursor-pointer transition-colors">(M)</button>
+            <button onclick="selectSpotlightSize('L', 310, this)" class="spotlight-size-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-obsidian/70 hover:text-obsidian cursor-pointer transition-colors">(L)</button>
+          </div>
+
+          <!-- Dynamic Price Display -->
+          <span id="spotlightPrice" class="font-serif text-2xl sm:text-3xl font-medium text-obsidian">$180</span>
+
+          <!-- Add to Cart Button -->
+          <button onclick="addSpotlightToCart()" class="flex-1 py-3 px-6 bg-burgundy hover:bg-burgundyHover active:scale-95 text-white text-xs font-semibold tracking-widest uppercase rounded-xl shadow-md transition-all cursor-pointer text-center" data-i18n="spotlight.add_btn">
+            • CART •
+          </button>
+        </div>
+
+        <!-- Editorial Description Paragraphs -->
+        <div class="space-y-3 text-xs text-obsidian/80 leading-relaxed font-sans pt-2 border-t border-stoneBorder/60">
+          <p data-i18n="spotlight.bullet1">
+            A charming, delicate bouquet of ranunculus, roses, complemented by meadow flowers. This bouquet will melt the heart of any flower lover.
+          </p>
+          <p data-i18n="spotlight.bullet2">
+            Fresh flowers plus a flourish of festive foliage. Expect focal flowers like garden roses, spray roses, and Italian ranunculus!
+          </p>
+          <p data-i18n="spotlight.bullet3">
+            All you need to do is unpack the arrangement, give the stems a quick 2cm diagonal trim, pop it into a decorative vase with fresh water, and release the tie holding the design in place. Pro tip: Don't forget to add water and replace it daily!
+          </p>
+        </div>
+
+        <!-- Add a Vase to Your Order Cards -->
+        <div class="pt-4 border-t border-stoneBorder/60">
+          <p class="text-xs font-semibold uppercase tracking-wider text-obsidian mb-3" data-i18n="spotlight.vase_title">
+            You can add a vase to your order
+          </p>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            <!-- Vase 1 -->
+            <button onclick="selectSpotlightVase('Clay Grey Vase', 40, this)" class="spotlight-vase-card p-2 rounded-xl border border-stoneBorder bg-white hover:border-burgundy text-left transition-all cursor-pointer">
+              <div class="aspect-square rounded-lg bg-parchment overflow-hidden mb-1.5 flex items-center justify-center text-xs text-sageText font-mono">
+                🏺
+              </div>
+              <p class="text-[11px] font-semibold text-obsidian leading-tight">Clay Grey Vase</p>
+              <p class="text-[10px] text-burgundy font-serif font-bold mt-0.5">+$40</p>
+            </button>
+
+            <!-- Vase 2 -->
+            <button onclick="selectSpotlightVase('Smoked Ribbed Glass', 55, this)" class="spotlight-vase-card p-2 rounded-xl border border-stoneBorder bg-white hover:border-burgundy text-left transition-all cursor-pointer">
+              <div class="aspect-square rounded-lg bg-parchment overflow-hidden mb-1.5 flex items-center justify-center text-xs text-sageText font-mono">
+                ✨
+              </div>
+              <p class="text-[11px] font-semibold text-obsidian leading-tight">Smoked Glass</p>
+              <p class="text-[10px] text-burgundy font-serif font-bold mt-0.5">+$55</p>
+            </button>
+
+            <!-- Vase 3 -->
+            <button onclick="selectSpotlightVase('Fluted Porcelain', 70, this)" class="spotlight-vase-card p-2 rounded-xl border border-stoneBorder bg-white hover:border-burgundy text-left transition-all cursor-pointer">
+              <div class="aspect-square rounded-lg bg-parchment overflow-hidden mb-1.5 flex items-center justify-center text-xs text-sageText font-mono">
+                🏛️
+              </div>
+              <p class="text-[11px] font-semibold text-obsidian leading-tight">Fluted Porcelain</p>
+              <p class="text-[10px] text-burgundy font-serif font-bold mt-0.5">+$70</p>
+            </button>
+
+            <!-- Vase 4: None -->
+            <button onclick="selectSpotlightVase(null, 0, this)" class="spotlight-vase-card p-2 rounded-xl border-2 border-burgundy bg-blushSilk/50 text-left transition-all cursor-pointer">
+              <div class="aspect-square rounded-lg bg-white overflow-hidden mb-1.5 flex items-center justify-center text-xs text-burgundy font-mono font-bold">
+                ✕
+              </div>
+              <p class="text-[11px] font-semibold text-burgundy leading-tight" data-i18n="spotlight.vase_none">None</p>
+              <p class="text-[10px] text-burgundy font-serif font-bold mt-0.5">$0</p>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       04. CARE EDITORIAL SECTION: HOW TO KEEP FLOWERS FRESH?
+  ========================================================================= -->
+  <section id="care" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-stoneBorder/80">
+    <h2 class="font-serif text-3xl sm:text-5xl font-normal tracking-tight text-obsidian uppercase mb-10 text-center sm:text-left" data-i18n="care.heading">
+      HOW TO KEEP FLOWERS FRESH?
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+      <!-- Card 1 -->
+      <div class="space-y-4">
+        <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-white border border-stoneBorder shadow-xs">
+          <img src="./public/images/products/flower-spring-mix.jpg" alt="Florist preparing stems" class="w-full h-full object-cover">
+        </div>
+        <p class="text-xs text-obsidian/80 leading-relaxed font-sans" data-i18n="care.p1">
+          Every morning our florists select only the healthiest stems with intact water conduits. Cut flowers need dedicated care from the moment they arrive at your home.
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="space-y-4">
+        <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-white border border-stoneBorder shadow-xs">
+          <img src="./public/images/products/flower-purple-tulips-wrap.jpg" alt="Fresh flower hydration" class="w-full h-full object-cover">
+        </div>
+        <div class="space-y-3 text-xs text-obsidian/80 leading-relaxed font-sans">
+          <p data-i18n="care.p2">
+            We recommend changing the water every day so that the flowers please you as long as possible. For the freshness of cut flowers, you need to put them in a wide vase, trim the stems by 2 cm, remove part of the leaves, and do not put many flowers in one vase.
+          </p>
+          <p class="font-serif italic text-sm text-burgundy" data-i18n="care.quote">
+            "As a child needs mother's care, so flowers need fresh water, space, and a comfortable temperature."
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       05. FULL CATALOG GRID WITH CATEGORY FILTERS
+  ========================================================================= -->
+  <section id="catalog" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-stoneBorder/80">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+      <div>
+        <span class="text-[10px] font-mono tracking-widest uppercase text-sageText">Curated Floral Haute Couture</span>
+        <h2 class="font-serif text-3xl sm:text-5xl font-normal tracking-tight text-obsidian uppercase mt-1" data-i18n="catalog.heading">
+          OUR FLOWER CREATIONS
+        </h2>
+      </div>
+
+      <!-- Category Tabs -->
+      <div class="flex flex-wrap gap-2">
+        <button onclick="filterCatalog('all', this)" class="catalog-tab-btn px-4 py-2 rounded-full text-xs font-semibold bg-obsidian text-white cursor-pointer transition-colors" data-i18n="cat.all">All Flowers</button>
+        <button onclick="filterCatalog('roses', this)" class="catalog-tab-btn px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stoneBorder text-obsidian/70 hover:text-obsidian cursor-pointer transition-colors" data-i18n="cat.roses">Roses</button>
+        <button onclick="filterCatalog('peonies', this)" class="catalog-tab-btn px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stoneBorder text-obsidian/70 hover:text-obsidian cursor-pointer transition-colors" data-i18n="cat.peonies">Peonies</button>
+        <button onclick="filterCatalog('tulips', this)" class="catalog-tab-btn px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stoneBorder text-obsidian/70 hover:text-obsidian cursor-pointer transition-colors" data-i18n="cat.tulips">Tulips</button>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+      <!-- Injected via JavaScript -->
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       06. BESPOKE ATELIER SECTION (FIXED WITH REAL BOUQUET - NO CASTLE!)
+  ========================================================================= -->
+  <section id="atelier" class="py-20 bg-parchment/60 border-t border-stoneBorder">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-xl mx-auto mb-12">
+        <span class="text-[11px] font-mono tracking-widest uppercase text-sageText" data-i18n="atelier.tag">The Bespoke Floral Atelier</span>
+        <h2 class="font-serif text-3xl sm:text-5xl font-medium text-obsidian mt-2" data-i18n="atelier.title">Sculpt Your Bouquet</h2>
+        <p class="mt-2 text-xs sm:text-sm text-obsidian/70" data-i18n="atelier.subtitle">Select focal stems, harmonizing volume, and handwritten calligraphy message.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-7 bg-white p-6 sm:p-8 rounded-2xl border border-stoneBorder shadow-xs space-y-6">
+          <!-- Step 1: Stem Count -->
+          <div>
+            <h3 class="text-xs font-semibold tracking-wider uppercase text-obsidian mb-2" data-i18n="atelier.step1">1. Select Volume Tier</h3>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="selectAtelierTier('Petite (18 Stems)', 135, this)" class="atelier-tier-btn p-3 rounded-xl border border-stoneBorder bg-alabaster text-xs text-left cursor-pointer">
+                <span class="font-semibold block">Petite (18 Stems)</span>
+                <span class="font-serif text-burgundy font-bold mt-1 block">$135</span>
+              </button>
+              <button onclick="selectAtelierTier('Signature (32 Stems)', 215, this)" class="atelier-tier-btn p-3 rounded-xl border-2 border-burgundy bg-blushSilk/60 text-burgundy text-xs text-left cursor-pointer font-semibold shadow-xs">
+                <span class="font-semibold block">Signature (32 Stems)</span>
+                <span class="font-serif text-burgundy font-bold mt-1 block">$215</span>
+              </button>
+              <button onclick="selectAtelierTier('Grand (50 Stems)', 340, this)" class="atelier-tier-btn p-3 rounded-xl border border-stoneBorder bg-alabaster text-xs text-left cursor-pointer">
+                <span class="font-semibold block">Grand (50 Stems)</span>
+                <span class="font-serif text-burgundy font-bold mt-1 block">$340</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Focal Flower Selection (REPLACED CASTLE WITH CHIC BOUQUET!) -->
+          <div>
+            <h3 class="text-xs font-semibold tracking-wider uppercase text-obsidian mb-2" data-i18n="atelier.step2">2. Choose Your Signature Focal Bloom</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <!-- Item 1: Crimson Roses (REAL BOUQUET - NO CASTLE) -->
+              <div onclick="selectAtelierBloom('Crimson Velvet Roses', './public/images/products/flower-crimson-water.jpg', this)" class="bloom-card border-2 border-burgundy rounded-xl overflow-hidden cursor-pointer shadow-xs">
+                <img src="./public/images/products/flower-crimson-water.jpg" alt="Crimson Garden Roses" class="w-full aspect-[4/3] object-cover">
+                <div class="p-2 bg-white text-left">
+                  <p class="text-[11px] font-semibold text-obsidian">Crimson Roses</p>
+                  <p class="text-[9px] text-sageText font-mono">Ecuador</p>
+                </div>
+              </div>
+
+              <!-- Item 2: Peonies -->
+              <div onclick="selectAtelierBloom('French Peonies', './public/images/products/flower-giant-peonies.jpg', this)" class="bloom-card border border-stoneBorder rounded-xl overflow-hidden cursor-pointer opacity-80 hover:opacity-100">
+                <img src="./public/images/products/flower-giant-peonies.jpg" alt="French Peonies" class="w-full aspect-[4/3] object-cover">
+                <div class="p-2 bg-white text-left">
+                  <p class="text-[11px] font-semibold text-obsidian">French Peonies</p>
+                  <p class="text-[9px] text-sageText font-mono">France</p>
+                </div>
+              </div>
+
+              <!-- Item 3: Purple Tulips -->
+              <div onclick="selectAtelierBloom('Dutch Tulips', './public/images/products/flower-purple-tulips-wrap.jpg', this)" class="bloom-card border border-stoneBorder rounded-xl overflow-hidden cursor-pointer opacity-80 hover:opacity-100">
+                <img src="./public/images/products/flower-purple-tulips-wrap.jpg" alt="Dutch Tulips" class="w-full aspect-[4/3] object-cover">
+                <div class="p-2 bg-white text-left">
+                  <p class="text-[11px] font-semibold text-obsidian">Dutch Tulips</p>
+                  <p class="text-[9px] text-sageText font-mono">Netherlands</p>
+                </div>
+              </div>
+
+              <!-- Item 4: Peach Ranunculus -->
+              <div onclick="selectAtelierBloom('Peach Ranunculus', './public/images/products/flower-peach-macro.jpg', this)" class="bloom-card border border-stoneBorder rounded-xl overflow-hidden cursor-pointer opacity-80 hover:opacity-100">
+                <img src="./public/images/products/flower-peach-macro.jpg" alt="Peach Ranunculus" class="w-full aspect-[4/3] object-cover">
+                <div class="p-2 bg-white text-left">
+                  <p class="text-[11px] font-semibold text-obsidian">Peach Ranunculus</p>
+                  <p class="text-[9px] text-sageText font-mono">Italy</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Calligraphy Message -->
+          <div>
+            <label class="block text-xs font-semibold tracking-wider uppercase text-obsidian mb-1" data-i18n="atelier.card_label">Handwritten Calligraphy Message</label>
+            <textarea id="atelierGiftMsg" rows="2" placeholder="Pen your heartfelt sentiment to be scripted on deckled cotton paper..." class="w-full p-3 text-xs rounded-xl border border-stoneBorder bg-alabaster focus:bg-white focus:outline-none"></textarea>
+          </div>
+        </div>
+
+        <!-- Right Summary Card -->
+        <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-stoneBorder shadow-md space-y-4">
+          <span class="text-[10px] font-mono tracking-widest uppercase text-sageText">Live Atelier Recipe</span>
+          <h3 id="atelierRecipeTitle" class="font-serif text-2xl font-medium text-obsidian">Crimson Velvet Roses</h3>
+          <p id="atelierRecipeTier" class="text-xs text-obsidian/60">Signature (32 Stems) • French Silk Paper</p>
+
+          <div class="aspect-[4/3] rounded-xl overflow-hidden shadow-inner border border-stoneBorder">
+            <img id="atelierRecipeImg" src="./public/images/products/flower-crimson-water.jpg" alt="Selected bouquet" class="w-full h-full object-cover">
+          </div>
+
+          <div class="pt-4 border-t border-stoneBorder flex items-center justify-between">
+            <div>
+              <p class="text-[10px] uppercase text-obsidian/50 font-mono">Total Commission</p>
+              <p id="atelierPrice" class="font-serif text-2xl font-bold text-burgundy">$215</p>
+            </div>
+            <button onclick="addAtelierToCart()" class="py-3 px-6 bg-burgundy hover:bg-burgundyHover text-white text-xs font-semibold tracking-widest uppercase rounded-xl shadow-md transition-all cursor-pointer" data-i18n="btn.commission">
+              Commission Creation
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       07. SLIDE-OUT CART DRAWER
+  ========================================================================= -->
+  <div id="cartDrawer" class="hidden fixed inset-0 z-50 overflow-hidden">
+    <!-- Backdrop -->
+    <div onclick="toggleCartDrawer(false)" class="absolute inset-0 bg-obsidian/50 backdrop-blur-xs transition-opacity"></div>
+    
+    <div class="fixed inset-y-0 right-0 ltr:right-0 rtl:left-0 rtl:right-auto max-w-full flex pl-10">
+      <div class="w-screen max-w-md bg-alabaster shadow-2xl flex flex-col border-l border-stoneBorder">
+        
+        <!-- Cart Header -->
+        <div class="p-5 border-b border-stoneBorder flex items-center justify-between bg-white">
+          <h3 class="font-serif text-xl font-medium text-obsidian" data-i18n="cart.title">Your Floral Basket</h3>
+          <button onclick="toggleCartDrawer(false)" class="p-1.5 text-obsidian/60 hover:text-burgundy rounded-lg text-lg cursor-pointer">✕</button>
+        </div>
+
+        <!-- Cart Items List -->
+        <div id="cartItemsList" class="flex-1 overflow-y-auto p-5 space-y-3">
+          <!-- Injected via JavaScript -->
+        </div>
+
+        <!-- Cart Footer -->
+        <div class="p-5 border-t border-stoneBorder bg-white space-y-4">
+          <div class="flex items-center justify-between text-xs font-mono uppercase">
+            <span class="text-obsidian/60">Subtotal</span>
+            <span id="cartSubtotal" class="font-serif text-lg font-bold text-obsidian">$0</span>
+          </div>
+
+          <button onclick="openCheckoutModal()" class="w-full py-3.5 bg-burgundy hover:bg-burgundyHover text-white text-xs font-semibold uppercase tracking-widest rounded-xl shadow-md transition-all cursor-pointer" data-i18n="cart.checkout">
+            Proceed to Checkout
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       08. CHECKOUT MODAL
+  ========================================================================= -->
+  <div id="checkoutModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-obsidian/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-stoneBorder p-6 sm:p-8 space-y-5">
+      <div class="flex items-center justify-between border-b border-stoneBorder pb-3">
+        <h3 class="font-serif text-2xl font-medium text-obsidian" data-i18n="checkout.modal_title">Complete Your Floral Order</h3>
+        <button onclick="closeCheckoutModal()" class="text-obsidian/50 hover:text-burgundy text-xl cursor-pointer">✕</button>
+      </div>
+
+      <form onsubmit="handleCheckoutSubmit(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-semibold uppercase text-[10px] text-obsidian/70 mb-1">Recipient Full Name</label>
+          <input type="text" required placeholder="e.g. Eleanor Vance" class="w-full p-2.5 rounded-xl border border-stoneBorder bg-alabaster focus:outline-none focus:border-burgundy">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold uppercase text-[10px] text-obsidian/70 mb-1">Mobile Phone</label>
+            <input type="tel" required placeholder="+1 (555) 000-0000" class="w-full p-2.5 rounded-xl border border-stoneBorder bg-alabaster focus:outline-none focus:border-burgundy">
+          </div>
+          <div>
+            <label class="block font-semibold uppercase text-[10px] text-obsidian/70 mb-1">Delivery Time Slot</label>
+            <select class="w-full p-2.5 rounded-xl border border-stoneBorder bg-alabaster focus:outline-none">
+              <option>Dawn (08:00 - 11:00 AM)</option>
+              <option>Afternoon (01:00 - 04:00 PM)</option>
+              <option>Dusk (06:00 - 09:00 PM)</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold uppercase text-[10px] text-obsidian/70 mb-1">Delivery Address</label>
+          <input type="text" required placeholder="Street, Villa/Apt, City" class="w-full p-2.5 rounded-xl border border-stoneBorder bg-alabaster focus:outline-none focus:border-burgundy">
+        </div>
+        <div>
+          <label class="block font-semibold uppercase text-[10px] text-obsidian/70 mb-1">Payment Method</label>
+          <select class="w-full p-2.5 rounded-xl border border-stoneBorder bg-alabaster focus:outline-none">
+            <option>Credit / Debit Card (Secure Instant Gateway)</option>
+            <option>Cash on Chilled Delivery (COD)</option>
+          </select>
+        </div>
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3.5 bg-burgundy hover:bg-burgundyHover text-white font-semibold text-xs uppercase tracking-wider rounded-xl shadow-md cursor-pointer">
+            Authorize & Confirm Order
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ORDER SUCCESS MODAL -->
+  <div id="successModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-obsidian/75 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-stoneBorder p-8 text-center space-y-4">
+      <div class="w-14 h-14 rounded-full bg-blushSilk text-burgundy flex items-center justify-center mx-auto text-2xl font-bold">✓</div>
+      <h3 class="font-serif text-3xl font-medium text-obsidian" data-i18n="success.title">Order Confirmed!</h3>
+      <p class="text-xs text-obsidian/70" data-i18n="success.desc">Your dawn-cut floral arrangement will be hand-tied and courier-dispatched in temperature-controlled boxes.</p>
+      <div class="p-3 rounded-lg bg-parchment font-mono text-sm text-burgundy font-bold" id="successOrderRef">JV-2026-94812</div>
+      <button onclick="closeSuccessModal()" class="w-full py-3 bg-burgundy hover:bg-burgundyHover text-white text-xs uppercase font-semibold rounded-xl cursor-pointer">
+        Return to Boutique
+      </button>
+    </div>
+  </div>
+
+  <!-- SEARCH MODAL -->
+  <div id="searchModal" class="hidden fixed inset-0 z-50 bg-obsidian/70 backdrop-blur-sm flex items-start justify-center pt-24 p-4">
+    <div class="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-stoneBorder p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-stoneBorder pb-3">
+        <input id="searchInput" oninput="handleLiveSearch(this.value)" type="text" placeholder="Search roses, peonies, ranunculus, occasions..." class="w-full text-sm focus:outline-none">
+        <button onclick="toggleSearchModal(false)" class="text-obsidian/50 hover:text-burgundy text-lg cursor-pointer">✕</button>
+      </div>
+      <div id="searchResultsList" class="max-h-60 overflow-y-auto space-y-2 text-xs">
+        <p class="text-obsidian/50 text-center py-4">Type to search fresh botanical collections...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       09. FOOTER
+  ========================================================================= -->
+  <footer class="bg-obsidian text-white py-12 mt-auto border-t border-white/10 text-xs">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <span class="font-serif text-xl tracking-wider block">JARDIN VIVANT</span>
+        <span class="text-[10px] text-sageText">Haute Floral Architecture • 24 Place Vendôme, Paris</span>
+      </div>
+      <p class="text-white/60">© 2026 Jardin Vivant. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- =========================================================================
+       10. JAVASCRIPT: DATA, THREE.JS 3D CANVAS, CART, CATALOG, I18N
+  ========================================================================= -->
+  <script>
+    // =============================================================
+    // JARDIN VIVANT CINEMATIC INTRO
+    // =============================================================
+    (() => {
+      const CFG = {
+        brand: 'JARDIN VIVANT', tagline: 'Where flowers speak',
+        once: true,                       // true = play once per session
+        t: {bloom: .8, detach: 4.1, text: 5.7, tag: 6.6, exit: 8, end: 9.6}
+      };
+      if (typeof THREE === 'undefined') return;
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      try { if (reduce || (CFG.once && sessionStorage.getItem('jv-intro'))) { window.dispatchEvent(new CustomEvent('jardin:intro-done')); return; } } catch (e) { if (reduce) { window.dispatchEvent(new CustomEvent('jardin:intro-done')); return; } }
+
+      const cl = (x, a, b) => Math.min(1, Math.max(0, (x - a) / (b - a)));
+      const eo = t => 1 - Math.pow(1 - t, 3);
+      const eio = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const rnd = (a, b) => a + Math.random() * (b - a);
+      const T = CFG.t;
+
+      /* DOM */
+      const ov = document.createElement('div');
+      ov.id = 'jv-intro'; ov.setAttribute('aria-hidden', 'true');
+      ov.innerHTML = '<canvas></canvas><div class="jv-rays"></div><div class="jv-glow"></div><div class="jv-text"><h1></h1><p class="jv-tag"></p></div>';
+      const h1 = ov.querySelector('h1');
+      [...CFG.brand].forEach((c, i) => { const s = document.createElement('span'); s.textContent = c === ' ' ? '\u00A0' : c; s.style.transitionDelay = i * .07 + 's'; h1.appendChild(s); });
+      ov.querySelector('.jv-tag').textContent = CFG.tagline;
+      document.body.appendChild(ov);
+      const prevOv = document.documentElement.style.overflow; document.documentElement.style.overflow = 'hidden';
+      const rays = ov.querySelector('.jv-rays'), glow = ov.querySelector('.jv-glow');
+
+      /* renderer + scene */
+      const renderer = new THREE.WebGLRenderer({canvas: ov.querySelector('canvas'), antialias: true});
+      const DPR = Math.min(devicePixelRatio || 1, 1.75);
+      renderer.setPixelRatio(DPR); renderer.setClearColor(0x240913, 1);
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.Fog(0x240913, 7.5, 19);
+      const cam = new THREE.PerspectiveCamera(40, 1, .1, 60);
+      const look = new THREE.Vector3(0, .55, 0);
+
+      scene.add(new THREE.HemisphereLight(0xffd6c8, 0x3a0c1c, .8));
+      const key = new THREE.DirectionalLight(0xffe0c0, 1.5); key.position.set(3, 6, 5); scene.add(key);
+      const rim = new THREE.DirectionalLight(0xff5f8c, 1.6); rim.position.set(-5, 2, -4); scene.add(rim);
+      const core = new THREE.PointLight(0xffa070, 0, 10); core.position.set(0, .8, 0); scene.add(core);
+
+      /* petal: tapered, cupped, with a rolled-back lip like a real rose petal */
+      const geo = new THREE.PlaneGeometry(1, 1, 8, 12), P = geo.attributes.position, sh = [];
+      for (let i = 0; i < P.count; i++) {
+        const v = P.getY(i) + .5, w = Math.pow(Math.sin(Math.PI * (.13 + .74 * v)), .6) * 1.1, x = P.getX(i) * w;
+        const lip = v > .76 ? Math.pow(v - .76, 2) * 3.6 : 0;
+        P.setXYZ(i, x, v, -(x * x * .85 + v * v * .16) + lip + Math.sin(v * 9 + x * 4) * .012 * v);
+        const g = .42 + .58 * Math.pow(v, .8); sh.push(g, g, g);
+      }
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(sh, 3)); geo.computeVertexNormals();
+
+      const pal = [0x6e0f2a, 0x8f1a3b, 0xb92d52, 0xdb6785, 0xf0a9b8, 0xf7cdd3, 0xfbe3df].map(c => new THREE.Color(c));
+      const acc = [0xf7e4d0, 0xf4d27e, 0xea6f8d, 0xb3203f, 0xffb3c1].map(c => new THREE.Color(c));
+      const mat = (c, emi) => new THREE.MeshPhysicalMaterial({color: c, vertexColors: true, side: THREE.DoubleSide, roughness: .42,
+        sheen: new THREE.Color(0xffb4c4), clearcoat: .22, clearcoatRoughness: .5, emissive: c.clone().multiplyScalar(emi), transparent: true});
+
+      /* rose */
+      const rose = new THREE.Group(); scene.add(rose);
+      const RINGS = [3, 5, 7, 9, 11, 13, 15], petals = [];
+      RINGS.forEach((n, r) => {
+        for (let i = 0; i < n; i++) {
+          const pv = new THREE.Group(); pv.rotation.y = i / n * 6.283 + r * .7; pv.position.y = r * .01;
+          const m = new THREE.Mesh(geo, mat(pal[r].clone().lerp(acc[3], Math.random() * .18), .22));
+          const s = .62 + r * .16; m.scale.set(s * 1.08, s, s); m.position.z = .012 + r * .04;
+          pv.add(m); rose.add(pv);
+          petals.push({m, r, closed: .03 + r * .015, open: .22 + r * .21 + rnd(-.05, .05), a: rnd(0, 6.28), rad: rnd(.8, 3.8), h: rnd(-.6, 2.2),
+            sp: rnd(.8, 1.8) * (Math.random() < .5 ? -1 : 1), dl: rnd(0, .5), spin: new THREE.Vector3(rnd(-3, 3), rnd(-3, 3), rnd(-3, 3)), free: false, from: new THREE.Vector3()});
+        }
+      });
+
+      /* petal storm */
+      const N = innerWidth < 700 ? 300 : 520;
+      const storm = new THREE.InstancedMesh(geo, mat(new THREE.Color(0xffffff), .12), N), S = [], D = new THREE.Object3D();
+      for (let i = 0; i < N; i++) {
+        storm.setColorAt(i, Math.random() < .6 ? pal[(Math.random() * 7) | 0] : acc[(Math.random() * 5) | 0]);
+        S.push({a: rnd(0, 6.28), rad: rnd(.5, 4.8), h: rnd(-2, 3), sp: rnd(.7, 1.9) * (Math.random() < .5 ? -1 : 1), dl: rnd(0, 1.6),
+          sc: rnd(.15, .44), spin: new THREE.Vector3(rnd(-3, 3), rnd(-3, 3), rnd(-3, 3)), fly: rnd(.6, 1.4)});
+      }
+      storm.visible = false; scene.add(storm);
+
+      /* golden dust */
+      const dc = document.createElement('canvas'); dc.width = dc.height = 64;
+      const dg = dc.getContext('2d'), gr = dg.createRadialGradient(32, 32, 0, 32, 32, 32);
+      gr.addColorStop(0, 'rgba(255,236,190,1)'); gr.addColorStop(.35, 'rgba(255,200,120,.5)'); gr.addColorStop(1, 'rgba(255,200,120,0)');
+      dg.fillStyle = gr; dg.fillRect(0, 0, 64, 64);
+      const DN = 280, dpos = new Float32Array(DN * 3), dsp = [];
+      for (let i = 0; i < DN; i++) { dpos.set([rnd(-5, 5), rnd(-3, 4), rnd(-4, 3)], i * 3); dsp.push(rnd(.12, .5)); }
+      const dgeo = new THREE.BufferGeometry(); dgeo.setAttribute('position', new THREE.BufferAttribute(dpos, 3));
+      const dmat = new THREE.PointsMaterial({size: .13, map: new THREE.CanvasTexture(dc), transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending});
+      scene.add(new THREE.Points(dgeo, dmat));
+
+      /* post-processing: bloom + chromatic edge + vignette + film grain */
+      let comp = null, bloom = null, fx = null;
+      if (THREE.EffectComposer && THREE.UnrealBloomPass) {
+        comp = new THREE.EffectComposer(renderer); comp.setPixelRatio(DPR);
+        comp.addPass(new THREE.RenderPass(scene, cam));
+        bloom = new THREE.UnrealBloomPass(new THREE.Vector2(512, 512), .6, .8, .5); comp.addPass(bloom);
+        fx = new THREE.ShaderPass({
+          uniforms: {tDiffuse: {value: null}, time: {value: 0}, amt: {value: 1}},
+          vertexShader: 'varying vec2 v;void main(){v=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+          fragmentShader: 'uniform sampler2D tDiffuse;uniform float time,amt;varying vec2 v;' +
+            'float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}' +
+            'void main(){vec2 d=v-.5;float r=dot(d,d);vec2 o=d*r*.05*amt;' +
+            'vec3 c=vec3(texture2D(tDiffuse,v+o).r,texture2D(tDiffuse,v).g,texture2D(tDiffuse,v-o).b);' +
+            'c*=1.-r*1.5;c+=(h(v*900.+time)-.5)*.045;gl_FragColor=vec4(c,1.);}'
+        });
+        comp.addPass(fx);
+      }
+
+      let W = 0, H = 0;
+      function resize() {
+        W = innerWidth; H = innerHeight; renderer.setSize(W, H, false);
+        if (comp) { comp.setSize(W, H); bloom.setSize(W, H); }
+        cam.aspect = W / H; cam.updateProjectionMatrix();
+      }
+      addEventListener('resize', resize); resize();
+
+      /* timeline */
+      const tmp = new THREE.Vector3();
+      let t0 = null, last = 0, done = false, textOn = false, tagOn = false;
+      function swirl(p, tau, out) {
+        const k = eo(cl(tau, 0, 2.2)), sq = 1 - .55 * eio(cl(tau + T.detach, T.text - .6, T.text + 1.4)), a = p.a + p.sp * tau * .9, r = p.rad * k * sq;
+        return out.set(Math.cos(a) * r, .6 + p.h * k + Math.sin(tau * 2 + p.a) * .12, Math.sin(a) * r);
+      }
+
+      function frame(now) {
+        if (done) return;
+        if (t0 === null) { t0 = now; last = now; }
+        const t = (now - t0) / 1000, dt = Math.min(.05, (now - last) / 1000); last = now;
+
+        /* camera: dive into the bloom, then pull back for the storm, with a handheld drift */
+        const bz = cam.aspect < 1 ? 11.5 : 7.8;
+        const zf = t < T.detach ? lerp(1.18, .66, eio(cl(t, 0, T.detach))) : lerp(.66, 1.02, eio(cl(t, T.detach, T.text)));
+        const ang = Math.sin(t * .4) * .4;
+        cam.position.set(Math.sin(ang) * bz * zf * .5 + Math.sin(t * 1.7) * .03, lerp(3.1, 1.6, eio(cl(t, 0, T.text))) + Math.sin(t * 1.3) * .03, Math.cos(ang) * bz * zf - eo(cl(t, T.exit, T.end)));
+        cam.lookAt(look);
+
+        /* bloom + detach */
+        rose.rotation.y = t * .45; rose.position.y = Math.sin(t * 1.3) * .04;
+        const fade = eo(cl(t, 0, .9)), out = 1 - cl(t, T.exit + .6, T.end);
+        petals.forEach(p => {
+          const m = p.m; m.material.opacity = fade * (p.free ? out : 1);
+          if (!p.free) {
+            const b = eo(cl(t - T.bloom - (6 - p.r) * .12, 0, 2.2));
+            m.rotation.x = lerp(p.closed, p.open, b);
+            m.material.emissiveIntensity = 1 + b * 1.4;
+            if (t > T.detach + p.dl * .3) { rose.updateMatrixWorld(true); scene.attach(m); p.free = true; p.from.copy(m.position); p.t0 = t; }
+          } else {
+            const k = eio(cl(t - p.t0, 0, 1.6)); swirl(p, t - T.detach, tmp); m.position.lerpVectors(p.from, tmp, k);
+            m.rotation.x += p.spin.x * dt * k; m.rotation.y += p.spin.y * dt * k; m.rotation.z += p.spin.z * dt * k;
+            m.position.z += eo(cl(t, T.exit, T.end)) * 14 * p.sp * p.sp * Math.sign(p.sp);
+          }
+        });
+
+        if (t > T.detach - .3) {
+          storm.visible = true; const f = eo(cl(t, T.exit, T.end));
+          for (let i = 0; i < N; i++) {
+            const p = S[i], tau = t - (T.detach - .3) - p.dl;
+            if (tau < 0) D.scale.setScalar(0);
+            else { swirl(p, tau, D.position); D.position.z += f * 16 * p.fly; D.rotation.set(p.spin.x * tau, p.spin.y * tau, p.spin.z * tau); D.scale.setScalar(p.sc * eo(cl(tau, 0, .6))); }
+            D.updateMatrix(); storm.setMatrixAt(i, D.matrix);
+          }
+          storm.instanceMatrix.needsUpdate = true; storm.material.opacity = out;
+        }
+
+        /* dust drifts upward */
+        for (let i = 0; i < DN; i++) { let y = dpos[i * 3 + 1] + dsp[i] * dt; if (y > 4) y = -3; dpos[i * 3 + 1] = y; dpos[i * 3] += Math.sin(t + i) * dt * .1; }
+        dgeo.attributes.position.needsUpdate = true;
+        dmat.opacity = .9 * eo(cl(t, 1, 3)) * out;
+
+        /* light, rays, glow, bloom pulse at the moment the petals burst */
+        const bl = eo(cl(t, T.bloom, T.bloom + 2.4)), exitFade = 1 - cl(t, T.exit, T.end - .4);
+        core.intensity = bl * 2.6 * (1 - cl(t, T.detach, T.text));
+        const burst = Math.exp(-Math.pow((t - T.detach - .15) * 2.2, 2));
+        rays.style.opacity = ((bl * .45 + burst * .5) * exitFade).toFixed(3);
+        glow.style.opacity = (Math.min(1, bl * .8 + burst * .5) * (1 - .35 * cl(t, T.detach, T.text)) * exitFade).toFixed(3);
+        glow.style.transform = 'scale(' + (1 + Math.sin(t * 1.6) * .04 + bl * .25 + burst * .2) + ')';
+        if (bloom) { bloom.strength = .55 + bl * .45 + burst * 1.1 + cl(t, T.text, T.text + .8) * .25; fx.uniforms.time.value = t; fx.uniforms.amt.value = 1 + burst * 3; }
+
+        /* text */
+        if (!textOn && t > T.text) { textOn = true; ov.classList.add('on'); }
+        if (!tagOn && t > T.tag) { tagOn = true; ov.classList.add('tag'); }
+        if (t > T.exit) ov.classList.add('out');
+
+        /* exit: circular reveal of the real site */
+        if (t > T.exit) {
+          const R = eio(cl(t, T.exit, T.end)) * Math.hypot(W, H) * .62, mk = 'radial-gradient(circle at 50% 50%, transparent ' + R + 'px, #000 ' + (R + 110) + 'px)';
+          ov.style.webkitMaskImage = mk; ov.style.maskImage = mk;
+        }
+
+        comp ? comp.render() : renderer.render(scene, cam);
+        if (t >= T.end) return finish();
+        requestAnimationFrame(frame);
+      }
+
+      function finish() {
+        done = true; removeEventListener('resize', resize);
+        renderer.dispose(); geo.dispose(); ov.remove();
+        document.documentElement.style.overflow = prevOv;
+        try { if (CFG.once) sessionStorage.setItem('jv-intro', '1'); } catch (e) {}
+        window.dispatchEvent(new CustomEvent('jardin:intro-done'));
+      }
+      (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => requestAnimationFrame(frame));
+    })();
+
+    // Reveal hero content smoothly on intro finish
+    window.addEventListener('jardin:intro-done', () => {
+      const el = document.getElementById('heroContent');
+      if (el) {
+        el.classList.remove('opacity-0', 'translate-y-6');
+        el.classList.add('opacity-100', 'translate-y-0');
+      }
+    });
+    setTimeout(() => {
+      const el = document.getElementById('heroContent');
+      if (el) {
+        el.classList.remove('opacity-0', 'translate-y-6');
+        el.classList.add('opacity-100', 'translate-y-0');
+      }
+    }, 9800);
+
+    // -------------------------------------------------------------
+    // PRODUCTS DATA (100% REAL FLOWER IMAGES)
+    // -------------------------------------------------------------
+    const PRODUCTS = [
+      {
+        id: 'jv-01',
+        name: "Tenderness",
+        nameAr: "تيندرنس — رقة الرانونكولوس",
+        category: "peonies",
+        price: 180,
+        img: "./public/images/products/flower-peach-macro.jpg",
+        desc: "Italian peach ranunculus, garden roses, and delicate foliage.",
+        descAr: "رانونكولوس إيطالي خوخي فاخر مع ورود الحديقة الإنجليزية."
+      },
+      {
+        id: 'jv-02',
+        name: "L'Éternel Velvet Crimson",
+        nameAr: "المخمل القرمزي الخالد",
+        category: "roses",
+        price: 195,
+        img: "./public/images/products/flower-crimson-water.jpg",
+        desc: "Thirty-six hand-selected Colombian deep crimson garden roses.",
+        descAr: "ست وثلاثون جورية حمراء كولومبية مخملية مغمورة بالندى."
+      },
+      {
+        id: 'jv-03',
+        name: "Versailles Peony Cloud",
+        nameAr: "سحابة بيوني فرساي",
+        category: "peonies",
+        price: 260,
+        img: "./public/images/products/flower-giant-peonies.jpg",
+        desc: "Fluffy double-flowered blush Sarah Bernhardt peonies.",
+        descAr: "أزهار بيوني فرنسية وردية عملاقة مع لمسات أستيلبي عطرية."
+      },
+      {
+        id: 'jv-04',
+        name: "Celestial Harmony",
+        nameAr: "تناغم الباستيل السماوي",
+        category: "roses",
+        price: 225,
+        img: "./public/images/products/flower-round-pastels.jpg",
+        desc: "Spherical composition of heirloom lilac and cream garden blooms.",
+        descAr: "تنسيق كروي ملكي من أزهار الليلك والورود الكريمية النادرة."
+      },
+      {
+        id: 'jv-05',
+        name: "Amsterdam Keukenhof Tulips",
+        nameAr: "توليب كيوكنهوف الملكي",
+        category: "tulips",
+        price: 170,
+        img: "./public/images/products/flower-purple-tulips-wrap.jpg",
+        desc: "Royal violet Dutch fringed tulips with French eucalyptus.",
+        descAr: "توليب هولندي بنفسجي فاخر بتغليف الحرير وأوراق الكينا العطرة."
+      },
+      {
+        id: 'jv-06',
+        name: "Provence Summer Harvest",
+        nameAr: "حصاد صيف بروفانس",
+        category: "roses",
+        price: 160,
+        img: "./public/images/products/flower-spring-mix.jpg",
+        desc: "Yellow garden roses, spray carnations, and vibrant blooms.",
+        descAr: "ورود الحديقة الصفراء مع القرنفل الملكي وأزهار الربيع المبهجة."
+      },
+      {
+        id: 'jv-07',
+        name: "Alabaster Orchid Whisper",
+        nameAr: "همس الأوركيد الأبيض",
+        category: "peonies",
+        price: 240,
+        img: "./public/images/products/flower-floating-cream.jpg",
+        desc: "Floating cream blossoms with delicate translucent petals.",
+        descAr: "زهور كريمية عائمة ببتلات شفافة ساحرة تعبر عن النقاء."
+      }
+    ];
+
+    // -------------------------------------------------------------
+    // THREE.JS 3D FLOATING PETALS INTERACTION
+    // -------------------------------------------------------------
+    (function initThreeScene() {
+      const container = document.getElementById('three-container');
+      if (!container || typeof THREE === 'undefined') return;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / (window.innerHeight * 0.85), 0.1, 100);
+      camera.position.set(0, 0, 16);
+
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+      renderer.setSize(container.clientWidth || window.innerWidth, container.clientHeight || 550);
+      container.appendChild(renderer.domElement);
+
+      const ambientLight = new THREE.AmbientLight(0xfff5ee, 1.6);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffd7b5, 2.0);
+      dirLight.position.set(5, 10, 8);
+      scene.add(dirLight);
+
+      const roseLight = new THREE.DirectionalLight(0xb83a5d, 1.8);
+      roseLight.position.set(-8, -4, 5);
+      scene.add(roseLight);
+
+      // Curved Petal Geometry
+      function createPetalGeom() {
+        const geom = new THREE.BufferGeometry();
+        const segU = 8, segV = 12;
+        const positions = [], indices = [];
+        for (let j = 0; j <= segV; j++) {
+          const v = j / segV;
+          const w = Math.sin(v * Math.PI) * (1 - v * 0.2);
+          const z = Math.sin(v * Math.PI * 0.8) * 0.4;
+          for (let i = 0; i <= segU; i++) {
+            const u = (i / segU - 0.5) * 2;
+            positions.push(u * w * 0.8, (v - 0.5) * 2.2, z + u * u * 0.1);
+          }
+        }
+        for (let j = 0; j < segV; j++) {
+          for (let i = 0; i < segU; i++) {
+            const a = j * (segU + 1) + i;
+            const b = a + 1;
+            const c = a + (segU + 1);
+            const d = c + 1;
+            indices.push(a, b, c, b, d, c);
+          }
+        }
+        geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        geom.setIndex(indices);
+        geom.computeVertexNormals();
+        return geom;
+      }
+
+      const petalGeom = createPetalGeom();
+      const petalColors = [0x4F1321, 0xF6E7E4, 0xEFA688, 0xF6D06E, 0xD5C4DC];
+      const petals = [];
+      const petalCount = 45;
+
+      for (let i = 0; i < petalCount; i++) {
+        const color = petalColors[i % petalColors.length];
+        const mat = new THREE.MeshStandardMaterial({
+          color: color,
+          roughness: 0.35,
+          metalness: 0.05,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.88
+        });
+        const mesh = new THREE.Mesh(petalGeom, mat);
+        mesh.position.set(
+          (Math.random() - 0.5) * 26,
+          (Math.random() - 0.5) * 16,
+          (Math.random() - 0.5) * 10
+        );
+        mesh.rotation.set(
+          Math.random() * Math.PI * 2,
+          Math.random() * Math.PI * 2,
+          Math.random() * Math.PI * 2
+        );
+        const scale = 0.3 + Math.random() * 0.45;
+        mesh.scale.set(scale, scale, scale);
+
+        petals.push({
+          mesh,
+          speedY: 0.012 + Math.random() * 0.02,
+          speedRotX: (Math.random() - 0.5) * 0.02,
+          speedRotY: (Math.random() - 0.5) * 0.02,
+          driftAngle: Math.random() * Math.PI * 2
+        });
+        scene.add(mesh);
+      }
+
+      let mouseX = 0, mouseY = 0;
+      window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        petals.forEach(p => {
+          p.mesh.position.y -= p.speedY;
+          p.driftAngle += 0.01;
+          p.mesh.position.x += Math.sin(p.driftAngle) * 0.015;
+          p.mesh.rotation.x += p.speedRotX;
+          p.mesh.rotation.y += p.speedRotY;
+
+          if (p.mesh.position.y < -10) {
+            p.mesh.position.y = 10;
+            p.mesh.position.x = (Math.random() - 0.5) * 26;
+          }
+        });
+
+        camera.position.x += (mouseX * 2.5 - camera.position.x) * 0.05;
+        camera.position.y += (-mouseY * 1.8 - camera.position.y) * 0.05;
+        camera.lookAt(0, 0, 0);
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        if (!container) return;
+        camera.aspect = (container.clientWidth || window.innerWidth) / (container.clientHeight || 550);
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth || window.innerWidth, container.clientHeight || 550);
+      });
+    })();
+
+    // -------------------------------------------------------------
+    // CATALOG RENDERING & FILTERING
+    // -------------------------------------------------------------
+    let currentCategory = 'all';
+
+    function renderCatalog() {
+      const grid = document.getElementById('catalogGrid');
+      grid.innerHTML = '';
+
+      const filtered = currentCategory === 'all'
+        ? PRODUCTS
+        : PRODUCTS.filter(p => p.category === currentCategory);
+
+      filtered.forEach((p, index) => {
+        const title = currentLang === 'ar' ? p.nameAr : p.name;
+        const desc = currentLang === 'ar' ? p.descAr : p.desc;
+        const quickAddText = currentLang === 'ar' ? 'أضف للسلة' : 'Quick Add';
+
+        const card = document.createElement('div');
+        card.className = 'group flex flex-col justify-between bg-white p-4 rounded-2xl border border-stoneBorder shadow-2xs hover:shadow-md transition-all';
+        card.innerHTML = `
+          <div>
+            <div class="aspect-[1/1] w-full rounded-xl overflow-hidden bg-parchment mb-4 relative">
+              <img src="${p.img}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <h3 class="font-serif text-base uppercase font-medium text-obsidian group-hover:text-burgundy transition-colors">${title}</h3>
+            <p class="text-[11px] text-obsidian/70 mt-1 line-clamp-2">${desc}</p>
+          </div>
+          <div class="pt-4 border-t border-stoneBorder/60 mt-3 flex items-center justify-between">
+            <span class="font-serif text-base font-semibold text-burgundy">$${p.price}</span>
+            <button onclick="quickAddToCart('${title.replace(/'/g, "\\'")}', ${p.price}, '${p.img}')" class="py-2 px-4 bg-parchment hover:bg-burgundy hover:text-white text-obsidian text-[11px] font-semibold uppercase rounded-lg transition-colors cursor-pointer">
+              ${quickAddText}
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+
+        // Insert Editorial Quote Tile after 2nd product
+        if (index === 1) {
+          const quoteCard = document.createElement('div');
+          quoteCard.className = 'p-6 rounded-2xl bg-[#E8EFEA] border border-[#D0DDD4] flex flex-col justify-center items-center text-center';
+          quoteCard.innerHTML = `
+            <p class="font-serif text-sm sm:text-base tracking-widest uppercase text-obsidian font-medium leading-relaxed" data-i18n="quote_tile">
+              ${i18n[currentLang]['quote_tile']}
+            </p>
+            <span class="w-8 h-0.5 bg-obsidian/30 mt-4"></span>
+          `;
+          grid.appendChild(quoteCard);
+        }
+      });
+    }
+
+    function filterCatalog(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.catalog-tab-btn').forEach(b => {
+        b.className = 'catalog-tab-btn px-4 py-2 rounded-full text-xs font-semibold bg-white border border-stoneBorder text-obsidian/70 hover:text-obsidian cursor-pointer transition-colors';
+      });
+      btn.className = 'catalog-tab-btn px-4 py-2 rounded-full text-xs font-semibold bg-obsidian text-white cursor-pointer transition-colors';
+      renderCatalog();
+    }
+
+    // -------------------------------------------------------------
+    // SPOTLIGHT BOUQUET INTERACTION
+    // -------------------------------------------------------------
+    let currentSpotlightSize = 'S';
+    let currentSpotlightBasePrice = 180;
+    let currentVaseName = null;
+    let currentVasePrice = 0;
+
+    function selectSpotlightSize(size, price, btn) {
+      currentSpotlightSize = size;
+      currentSpotlightBasePrice = price;
+      document.querySelectorAll('.spotlight-size-btn').forEach(b => {
+        b.className = 'spotlight-size-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-obsidian/70 hover:text-obsidian cursor-pointer transition-colors';
+      });
+      btn.className = 'spotlight-size-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-obsidian text-white cursor-pointer transition-colors';
+      updateSpotlightPriceDisplay();
+    }
+
+    function selectSpotlightVase(name, price, btn) {
+      currentVaseName = name;
+      currentVasePrice = price;
+      document.querySelectorAll('.spotlight-vase-card').forEach(b => {
+        b.className = 'spotlight-vase-card p-2 rounded-xl border border-stoneBorder bg-white hover:border-burgundy text-left transition-all cursor-pointer';
+      });
+      btn.className = 'spotlight-vase-card p-2 rounded-xl border-2 border-burgundy bg-blushSilk/50 text-left transition-all cursor-pointer';
+      updateSpotlightPriceDisplay();
+    }
+
+    function updateSpotlightPriceDisplay() {
+      const total = currentSpotlightBasePrice + currentVasePrice;
+      document.getElementById('spotlightPrice').innerText = '$' + total;
+    }
+
+    function addSpotlightToCart() {
+      const total = currentSpotlightBasePrice + currentVasePrice;
+      const itemName = `TENDERNESS (${currentSpotlightSize})` + (currentVaseName ? ` + ${currentVaseName}` : '');
+      cartItems.push({ name: itemName, price: total, img: './public/images/products/flower-peach-macro.jpg' });
+      renderCart();
+      toggleCartDrawer(true);
+    }
+
+    // -------------------------------------------------------------
+    // CART MANAGEMENT
+    // -------------------------------------------------------------
+    let cartItems = [];
+
+    function quickAddToCart(name, price, img) {
+      cartItems.push({ name, price, img });
+      renderCart();
+      toggleCartDrawer(true);
+    }
+
+    function renderCart() {
+      const list = document.getElementById('cartItemsList');
+      const badge = document.getElementById('cartCountBadge');
+      const subtotalEl = document.getElementById('cartSubtotal');
+      list.innerHTML = '';
+
+      if (cartItems.length === 0) {
+        list.innerHTML = `<p class="text-xs text-obsidian/50 py-8 text-center">${currentLang === 'ar' ? 'سلة مشترياتك فارغة حالياً.' : 'Your basket is currently empty.'}</p>`;
+        badge.innerText = '0';
+        subtotalEl.innerText = '$0';
+        return;
+      }
+
+      let subtotal = 0;
+      cartItems.forEach((item, idx) => {
+        subtotal += item.price;
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-3 rounded-xl bg-white border border-stoneBorder text-xs';
+        row.innerHTML = `
+          <div class="flex items-center gap-3">
+            <img src="${item.img}" class="w-12 h-12 rounded-lg object-cover">
+            <div>
+              <p class="font-semibold text-obsidian">${item.name}</p>
+              <p class="text-[11px] text-burgundy font-serif font-bold">$${item.price}</p>
+            </div>
+          </div>
+          <button onclick="removeCartItem(${idx})" class="text-obsidian/40 hover:text-burgundy text-base cursor-pointer p-1">✕</button>
+        `;
+        list.appendChild(row);
+      });
+
+      badge.innerText = cartItems.length;
+      subtotalEl.innerText = '$' + subtotal;
+    }
+
+    function removeCartItem(idx) {
+      cartItems.splice(idx, 1);
+      renderCart();
+    }
+
+    function toggleCartDrawer(open) {
+      const drawer = document.getElementById('cartDrawer');
+      if (open) drawer.classList.remove('hidden');
+      else drawer.classList.add('hidden');
+    }
+
+    function toggleWishlist(btn) {
+      const icon = btn.querySelector('.heart-icon');
+      if (icon.classList.contains('fill-burgundy')) {
+        icon.classList.remove('fill-burgundy', 'text-burgundy');
+      } else {
+        icon.classList.add('fill-burgundy', 'text-burgundy');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ATELIER CUSTOM BOUQUET LOGIC
+    // -------------------------------------------------------------
+    let atelierTier = 'Signature (32 Stems)';
+    let atelierPrice = 215;
+    let atelierBloom = 'Crimson Velvet Roses';
+    let atelierImg = './public/images/products/flower-crimson-water.jpg';
+
+    function selectAtelierTier(tier, price, btn) {
+      atelierTier = tier;
+      atelierPrice = price;
+      document.querySelectorAll('.atelier-tier-btn').forEach(b => {
+        b.className = 'atelier-tier-btn p-3 rounded-xl border border-stoneBorder bg-alabaster text-xs text-left cursor-pointer';
+      });
+      btn.className = 'atelier-tier-btn p-3 rounded-xl border-2 border-burgundy bg-blushSilk/60 text-burgundy text-xs text-left cursor-pointer font-semibold shadow-xs';
+      document.getElementById('atelierPrice').innerText = '$' + atelierPrice;
+      document.getElementById('atelierRecipeTier').innerText = `${atelierTier} • French Silk Paper`;
+    }
+
+    function selectAtelierBloom(name, img, el) {
+      atelierBloom = name;
+      atelierImg = img;
+      document.querySelectorAll('.bloom-card').forEach(c => {
+        c.className = 'bloom-card border border-stoneBorder rounded-xl overflow-hidden cursor-pointer opacity-80 hover:opacity-100';
+      });
+      el.className = 'bloom-card border-2 border-burgundy rounded-xl overflow-hidden cursor-pointer shadow-xs';
+      document.getElementById('atelierRecipeTitle').innerText = name;
+      document.getElementById('atelierRecipeImg').src = img;
+    }
+
+    function addAtelierToCart() {
+      const title = `Bespoke: ${atelierBloom} (${atelierTier})`;
+      cartItems.push({ name: title, price: atelierPrice, img: atelierImg });
+      renderCart();
+      toggleCartDrawer(true);
+    }
+
+    // -------------------------------------------------------------
+    // CHECKOUT FLOW
+    // -------------------------------------------------------------
+    function openCheckoutModal() {
+      if (cartItems.length === 0) return;
+      toggleCartDrawer(false);
+      document.getElementById('checkoutModal').classList.remove('hidden');
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById('checkoutModal').classList.add('hidden');
+    }
+
+    function handleCheckoutSubmit(e) {
+      e.preventDefault();
+      closeCheckoutModal();
+      const ref = 'JV-2026-' + Math.floor(10000 + Math.random() * 90000);
+      document.getElementById('successOrderRef').innerText = ref;
+      document.getElementById('successModal').classList.remove('hidden');
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      }
+      cartItems = [];
+      renderCart();
+    }
+
+    function closeSuccessModal() {
+      document.getElementById('successModal').classList.add('hidden');
+    }
+
+    // -------------------------------------------------------------
+    // SEARCH MODAL
+    // -------------------------------------------------------------
+    function toggleSearchModal(open) {
+      const m = document.getElementById('searchModal');
+      if (open) {
+        m.classList.remove('hidden');
+        document.getElementById('searchInput').focus();
+      } else {
+        m.classList.add('hidden');
+      }
+    }
+
+    function handleLiveSearch(query) {
+      const q = query.trim().toLowerCase();
+      const list = document.getElementById('searchResultsList');
+      if (!q) {
+        list.innerHTML = `<p class="text-obsidian/50 text-center py-4">${currentLang === 'ar' ? 'اكتب للبحث في تشكيلة الزهور...' : 'Type to search fresh botanical collections...'}</p>`;
+        return;
+      }
+      const results = PRODUCTS.filter(p => 
+        p.name.toLowerCase().includes(q) || 
+        p.nameAr.includes(q) || 
+        p.desc.toLowerCase().includes(q)
+      );
+
+      if (results.length === 0) {
+        list.innerHTML = `<p class="text-obsidian/50 text-center py-4">${currentLang === 'ar' ? 'لم يتم العثور على أزهار مطابقة.' : 'No matching botanical arrangements found.'}</p>`;
+        return;
+      }
+
+      list.innerHTML = '';
+      results.forEach(p => {
+        const title = currentLang === 'ar' ? p.nameAr : p.name;
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-2.5 rounded-xl hover:bg-parchment cursor-pointer transition-colors';
+        item.onclick = () => {
+          quickAddToCart(title, p.price, p.img);
+          toggleSearchModal(false);
+        };
+        item.innerHTML = `
+          <div class="flex items-center gap-3">
+            <img src="${p.img}" class="w-10 h-10 rounded-lg object-cover">
+            <div>
+              <p class="font-semibold text-obsidian">${title}</p>
+              <p class="text-[11px] text-sageText font-mono">$${p.price}</p>
+            </div>
+          </div>
+          <span class="text-xs text-burgundy font-semibold">+ Add</span>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // ARABIC & ENGLISH TRANSLATION ENGINE
+    // -------------------------------------------------------------
+    const i18n = {
+      en: {
+        'topbar.shipping': 'Complimentary Chilled White-Glove Courier on Orders Above $200',
+        'topbar.promo': 'Use code JARDIN10 for 10% privilege',
+        'nav.spotlight': 'Featured Bouquet',
+        'nav.catalog': 'Catalog',
+        'nav.care': 'Care Guide',
+        'nav.atelier': 'Custom Atelier',
+        'brand.subtitle': 'Haute Botanique • Paris',
+        'hero.badge': 'Dawn Harvest • Living Floral Architecture',
+        'hero.title1': 'Where Flowers Speak',
+        'hero.title2': 'A Living Language',
+        'hero.subtitle': 'Enter a breathing botanical sanctuary. Handcrafted luxury bouquets, rare garden roses, and living sculptures curated for life\'s most profound moments.',
+        'hero.cta_spotlight': 'View Signature Bouquet',
+        'hero.cta_atelier': 'Custom Atelier',
+        'hero.hint': '• Move your cursor to interact with floating petals •',
+        'spotlight.breadcrumb': 'Bouquet tenderness',
+        'spotlight.title': 'TENDERNESS',
+        'spotlight.add_btn': '• CART •',
+        'spotlight.bullet1': 'A charming, delicate bouquet of ranunculus, roses, complemented by meadow flowers. This bouquet will melt the heart of any flower lover.',
+        'spotlight.bullet2': 'Fresh flowers plus a flourish of festive foliage. Expect focal flowers like garden roses, spray roses, and Italian ranunculus!',
+        'spotlight.bullet3': 'All you need to do is unpack the arrangement, give the stems a quick 2cm diagonal trim, pop it into a decorative vase with fresh water, and release the tie holding the design in place. Pro tip: Don\'t forget to add water and replace it daily!',
+        'spotlight.vase_title': 'You can add a vase to your order',
+        'spotlight.vase_none': 'None',
+        'care.heading': 'HOW TO KEEP FLOWERS FRESH?',
+        'care.p1': 'Every morning our florists select only the healthiest stems with intact water conduits. Cut flowers need dedicated care from the moment they arrive at your home.',
+        'care.p2': 'We recommend changing the water every day so that the flowers please you as long as possible. For the freshness of cut flowers, you need to put them in a wide vase, trim the stems by 2 cm, remove part of the leaves, and do not put many flowers in one vase.',
+        'care.quote': '"As a child needs mother\'s care, so flowers need fresh water, space, and a comfortable temperature."',
+        'catalog.heading': 'OUR FLOWER CREATIONS',
+        'cat.all': 'All Flowers',
+        'cat.roses': 'Roses',
+        'cat.peonies': 'Peonies',
+        'cat.tulips': 'Tulips',
+        'quote_tile': '"WE SELL WHAT WE LOVE. THIS IS HOW CREATED A STYLE JARDIN VIVANT"',
+        'atelier.tag': 'The Bespoke Floral Atelier',
+        'atelier.title': 'Sculpt Your Bouquet',
+        'atelier.subtitle': 'Select focal stems, harmonizing volume, and handwritten calligraphy message.',
+        'atelier.step1': '1. Select Volume Tier',
+        'atelier.step2': '2. Choose Your Signature Focal Bloom',
+        'atelier.card_label': 'Handwritten Calligraphy Message',
+        'btn.commission': 'Commission Creation',
+        'cart.title': 'Your Floral Basket',
+        'cart.checkout': 'Proceed to Checkout',
+        'checkout.modal_title': 'Complete Your Floral Order',
+        'success.title': 'Order Confirmed!',
+        'success.desc': 'Your dawn-cut floral arrangement will be hand-tied and courier-dispatched in temperature-controlled boxes.'
+      },
+      ar: {
+        'topbar.shipping': 'توصيل مبرد ومجاني بالقفاز الأبيض للطلبات التي تتجاوز 200 دولار',
+        'topbar.promo': 'استخدم كود JARDIN10 للحصول على خصم 10%',
+        'nav.spotlight': 'الباقة المميزة',
+        'nav.catalog': 'كتالوج الأزهار',
+        'nav.care': 'دليل العناية',
+        'nav.atelier': 'صمم باقتك',
+        'brand.subtitle': 'دار الزهور الفاخرة • باريس',
+        'hero.badge': 'أزهار طبيعية فاخرة قطاف الفجر • ربيع باريس',
+        'hero.title1': 'حين تتحدث الزهور',
+        'hero.title2': 'برقي الحضور ودفء المشاعر',
+        'hero.subtitle': 'مرحباً بك في دار جاردان فيفان. نوفر لك باقات الورد الطبيعي الفاخرة المنتقاة فجر اليوم، منسقة بأيدي خبراء لتخليد أثمن لحظاتك.',
+        'hero.cta_spotlight': 'عرض الباقة المميزة',
+        'hero.cta_atelier': 'استوديو تصميم الباقات',
+        'hero.hint': '• حرك الماوس لتتفاعل بتلات الزهور ثلاثية الأبعاد معك •',
+        'spotlight.breadcrumb': 'باقة تيندرنس الرقيقة',
+        'spotlight.title': 'تيندرنس',
+        'spotlight.add_btn': '• أضف إلى السلة •',
+        'spotlight.bullet1': 'باقة رقيقة وساحرة من أزهار الرانونكولوس الإيطالية وورود الحديقة، مع لمسات من زهور المروج وأوراق الزيتون.',
+        'spotlight.bullet2': 'زهور طبيعية طازجة قطاف اليوم مع أغصان خضراء احتفالية عطرية تضم ورد الجوري والبيوني الفرنسي.',
+        'spotlight.bullet3': 'كل ما عليك هو إخراج الباقة وقص 2 سم من أسفل السيقان بزاوية مائلة، ووضعها في مزهرية بماء بارد نظيف. نصيحة الخبراء: احرص على تجديد الماء يومياً.',
+        'spotlight.vase_title': 'يمكنك إضافة مزهرية فاخرة مع طلبك',
+        'spotlight.vase_none': 'بدون مزهرية',
+        'care.heading': 'كيف تحافظ على نضارة الزهور لأطول فترة؟',
+        'care.p1': 'كل صباح يختار منسقونا أصح سيقان الزهور بعناية فائقة. الزهور الطبيعية تحتاج لعناية منتظمة لتدوم في منزلك حتى 14 يوماً بنضارة كاملة.',
+        'care.p2': 'ننصح بتغيير ماء المزهرية يومياً، واستخدام مزهرية واسعة مع قص أطراف السيقان بمقدار 2 سم بزاوية مائلة، وإزالة أي أوراق ملامسة للماء.',
+        'care.quote': '"مثلما يحتاج الطفل لرعاية أمه، تحتاج الزهور للماء النقي والمساحة والحرارة المعتدلة."',
+        'catalog.heading': 'إبداعاتنا من الزهور الطبيعية',
+        'cat.all': 'جميع الزهور',
+        'cat.roses': 'الورد الجوري',
+        'cat.peonies': 'البيوني الفرنسي',
+        'cat.tulips': 'التوليب الهولندي',
+        'quote_tile': '"نحن نصنع ما نحب، وهكذا بنينا أسلوب جاردان فيفان الفريد"',
+        'atelier.tag': 'استوديو تصميم الباقات الخاصة',
+        'atelier.title': 'صمم باقتك بنفسك',
+        'atelier.subtitle': 'اختر نوع الورد، الحجم المفضل، والرسالة المكتوبة بخط اليد.',
+        'atelier.step1': '١. اختر حجم الباقة وعدد السيقان',
+        'atelier.step2': '٢. اختر الزهرة الأساسية للباقة',
+        'atelier.card_label': 'رسالة إهداء مكتوبة بخط اليد مجاناً',
+        'btn.commission': 'اعتماد وتنسيق الباقة',
+        'cart.title': 'سلة مشترياتك',
+        'cart.checkout': 'متابعة الدفع والتوصيل',
+        'checkout.modal_title': 'إتمام وتأكيد الطلب الفاخر',
+        'success.title': 'تم تأكيد طلبك بنجاح!',
+        'success.desc': 'سيقوم كبير المنسقين بتجهيز أزهارك فجر يوم التوصيل وتوصيلها في صناديق مبردة تضمن نضارتها 100%.'
+      }
+    };
+
+    let currentLang = 'en';
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+      document.getElementById('langLabel').innerText = currentLang === 'en' ? 'العربية' : 'English';
+
+      // Update static texts
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[currentLang] && i18n[currentLang][key]) {
+          el.innerText = i18n[currentLang][key];
+        }
+      });
+
+      // Re-render catalog and cart
+      renderCatalog();
+      renderCart();
+    }
+
+    // Initial render
+    renderCatalog();
+    renderCart();
+  </script>
+</body>
+</html>

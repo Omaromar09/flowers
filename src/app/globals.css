@@ -1,26 +1,148 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Editorial Foundation */
+  --color-obsidian: #121714;
+  --color-alabaster: #FDFBF7;
+  --color-parchment: #F7F3EC;
+  --color-stone: #E6E0D6;
+  --color-muted-border: #E8E2D8;
+
+  /* Botanical Flora Spectrum */
+  --color-burgundy: #4F1321;
+  --color-burgundy-hover: #3B0D18;
+  --color-moss-forest: #1E3329;
+  --color-sage: #8A9A86;
+  --color-rose-velvet: #B83A5D;
+  --color-blush-silk: #F6E7E4;
+  --color-apricot-glow: #EFA688;
+  --color-butter-dahlia: #F6D06E;
+  --color-lavender-mist: #D5C4DC;
+
+  /* Typography Scales */
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-arabic-serif: var(--font-amiri), "Traditional Arabic", serif;
+  --font-arabic-sans: var(--font-cairo), "Segoe UI Arabic", sans-serif;
+
+  /* UI Tokens */
+  --background: var(--color-alabaster);
+  --foreground: var(--color-obsidian);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-obsidian: var(--color-obsidian);
+  --color-alabaster: var(--color-alabaster);
+  --color-parchment: var(--color-parchment);
+  --color-stone: var(--color-stone);
+  --color-burgundy: var(--color-burgundy);
+  --color-burgundy-hover: var(--color-burgundy-hover);
+  --color-moss-forest: var(--color-moss-forest);
+  --color-sage: var(--color-sage);
+  --color-rose-velvet: var(--color-rose-velvet);
+  --color-blush-silk: var(--color-blush-silk);
+  --color-apricot-glow: var(--color-apricot-glow);
+  --color-butter-dahlia: var(--color-butter-dahlia);
+  --color-lavender-mist: var(--color-lavender-mist);
+  --color-muted-border: var(--color-muted-border);
+
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Base resets & typography */
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-alabaster);
+  color: var(--color-obsidian);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ARABIC TYPOGRAPHY ENHANCEMENT */
+html[dir="rtl"] body,
+html[lang="ar"] body {
+  font-family: var(--font-arabic-sans), sans-serif;
+  line-height: 1.7;
+}
+
+html[dir="rtl"] .font-serif,
+html[lang="ar"] .font-serif {
+  font-family: var(--font-arabic-serif), serif;
+  font-weight: 700;
+  letter-spacing: normal !important;
+}
+
+/* Eliminate awkward English letter-spacing in Arabic cursive text */
+html[dir="rtl"] [class*="tracking-"],
+html[lang="ar"] [class*="tracking-"] {
+  letter-spacing: normal !important;
+}
+
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[lang="ar"] h1,
+html[lang="ar"] h2,
+html[lang="ar"] h3 {
+  line-height: 1.35;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-alabaster);
+}
+::-webkit-scrollbar-thumb {
+  background: #C8BFB2;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-moss-forest);
+}
+
+/* Keyboard focus accessibility standards */
+:focus-visible {
+  outline: 2px solid var(--color-burgundy);
+  outline-offset: 3px;
+}
+
+/* Custom selection */
+::selection {
+  background-color: var(--color-blush-silk);
+  color: var(--color-burgundy);
+}
+
+/* Reduced motion compliance */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Subtle image zoom transition */
+.image-zoom-container img {
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.image-zoom-container:hover img {
+  transform: scale(1.05);
+}
+
+/* Grain / Tactile fine texture overlay */
+.tactile-grain {
+  background-image: radial-gradient(#121714 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  opacity: 0.035;
 }
